@@ -335,12 +335,12 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
 
   return (
     <div
-      className={`w-full min-h-screen transition-colors duration-300 font-sans px-4 sm:px-10 lg:px-14 pb-16 flex flex-col justify-between overflow-x-hidden ${
+      className={`w-full min-h-screen transition-colors duration-300 font-sans px-4 md:px-6 lg:px-8 xl:px-14 pb-16 flex flex-col justify-between overflow-x-hidden ${
         theme === 'light' ? 'bg-[#f4f4f1] text-[#0c0c0e]' : 'bg-[#09090b] text-[#f4f4f4]'
       }`}
     >
-      {/* ================= TABLET & MOBILE HEADER (Visible on screens < xl) ================= */}
-      <div className="flex xl:hidden items-center justify-between w-full pt-4 pb-3 border-b border-black/10 dark:border-white/10 select-none">
+      {/* ================= TABLET & MOBILE HEADER (Visible on screens < md) ================= */}
+      <div className="flex md:hidden items-center justify-between w-full pt-4 pb-3 border-b border-black/10 dark:border-white/10 select-none">
         {/* Two-Line Clean Minimalist Hamburger Menu */}
         <button
           onClick={() => {
@@ -387,7 +387,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-between p-6 xl:hidden"
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col justify-between p-6 md:hidden"
           >
             {/* Drawer Header */}
             <div className="flex items-center justify-between border-b border-white/20 pb-4">
@@ -407,7 +407,7 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
             </div>
 
             {/* Nav Links */}
-            <div className="flex flex-col space-y-6 my-auto font-syne text-3xl font-black uppercase text-left">
+            <div className="flex flex-col space-y-6 my-auto font-unbounded text-2xl sm:text-3xl font-black uppercase text-left">
               {/* WORK */}
               <button
                 onClick={() => {
@@ -415,9 +415,10 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('work');
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center"
               >
-                WORK
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>WORK</span>
               </button>
 
               {/* ABOUT */}
@@ -427,9 +428,10 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('about');
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center"
               >
-                ABOUT
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>ABOUT</span>
               </button>
 
               {/* RECENT WORKS (Active) */}
@@ -439,9 +441,9 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('playground');
                 }}
-                className="text-[#e62b1e] flex items-center gap-2 cursor-pointer text-left"
+                className="text-[#e62b1e] flex items-center cursor-pointer text-left whitespace-nowrap"
               >
-                <span>→</span>
+                <span className="w-7 inline-flex items-center shrink-0 text-xl">→</span>
                 <span>RECENT WORKS</span>
               </button>
 
@@ -452,9 +454,10 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onOpenContact();
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center"
               >
-                CONTACT
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>CONTACT</span>
               </button>
             </div>
 
@@ -475,25 +478,26 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
         )}
       </AnimatePresence>
 
-      {/* ================= TOP HEADER (Desktop >= xl: Aligned with Work & About) ================= */}
-      <div className="hidden xl:flex w-full items-start justify-between gap-6 lg:gap-8 pt-8 lg:pt-10 mb-8 select-none">
+      {/* ================= TOP HEADER (Desktop >= md: Aligned with Work & About) ================= */}
+      <div className="hidden md:flex w-full items-start justify-between gap-6 lg:gap-8 pt-4 md:pt-6 lg:pt-8 xl:pt-10 mb-8 select-none">
         {/* Left: Menu Navigation Stack */}
         <div className="w-56 sm:w-64 lg:w-72 shrink-0">
-          <div className="font-gotham text-xs text-neutral-600 dark:text-neutral-400 mb-3 tracking-wider select-none font-semibold">
+          <div className="font-gotham font-semibold text-[10px] md:text-xs text-neutral-600 dark:text-neutral-400 mb-2 md:mb-2.5 tracking-wider select-none">
             Menu
           </div>
-          <nav className="flex flex-col font-unbounded text-xl sm:text-2xl font-black tracking-tight uppercase leading-[0.88] space-y-1">
+          <nav className="flex flex-col font-unbounded text-base md:text-lg lg:text-xl xl:text-2xl font-black tracking-tight uppercase leading-[0.95] space-y-1">
             {/* WORK */}
             <button
               onClick={() => {
                 soundManager.playClick();
                 onViewChange('work');
               }}
-              className={`text-left pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              WORK
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">WORK</span>
             </button>
 
             {/* ABOUT */}
@@ -502,11 +506,12 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                 soundManager.playClick();
                 onViewChange('about');
               }}
-              className={`text-left pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              ABOUT
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">ABOUT</span>
             </button>
 
             {/* RECENT WORKS (Active View) */}
@@ -515,9 +520,9 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                 soundManager.playClick();
                 onViewChange('playground');
               }}
-              className="text-left flex items-center gap-1.5 transition-colors cursor-pointer text-[#e62b1e]"
+              className="text-left flex items-center transition-colors cursor-pointer whitespace-nowrap text-[#e62b1e]"
             >
-              <span className="font-black text-lg sm:text-xl">→</span>
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg">→</span>
               <span>RECENT WORKS</span>
             </button>
 
@@ -527,11 +532,12 @@ export const PlaygroundView: React.FC<PlaygroundViewProps> = ({
                 soundManager.playClick();
                 onOpenContact();
               }}
-              className={`text-left pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              CONTACT
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">CONTACT</span>
             </button>
           </nav>
         </div>

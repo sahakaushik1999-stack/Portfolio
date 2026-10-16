@@ -149,9 +149,9 @@ export const ImageCustomizerModal: React.FC<ImageCustomizerModalProps> = ({
     try {
       setIsProcessing(true);
       soundManager.playClick();
-      const processedDataUrl = await processImageFile(file, 1920);
+      const processedDataUrl = await processImageFile(file, 1400);
       await saveImageOverride(selectedProject.id, processedDataUrl);
-      showToast(`✓ Image for "${selectedProject.title}" saved permanently!`);
+      showToast(`✓ Image for "${selectedProject.title}" stored permanently in Cloud Firestore!`);
     } catch (err) {
       console.error(err);
       showToast('Failed to process image file. Please try another image.');
@@ -184,7 +184,7 @@ export const ImageCustomizerModal: React.FC<ImageCustomizerModalProps> = ({
       setIsProcessing(true);
       soundManager.playClick();
       await saveImageOverride(selectedProject.id, urlInput.trim());
-      showToast(`✓ Image URL saved for "${selectedProject.title}"!`);
+      showToast(`✓ Image URL stored in Cloud Firestore for "${selectedProject.title}"!`);
       setUrlInput('');
     } catch (err) {
       console.error(err);
@@ -198,7 +198,7 @@ export const ImageCustomizerModal: React.FC<ImageCustomizerModalProps> = ({
     try {
       soundManager.playClick();
       await saveImageOverride(selectedProject.id, presetUrl);
-      showToast(`✓ Applied "${presetTitle}" to ${selectedProject.title}!`);
+      showToast(`✓ Applied & saved "${presetTitle}" to Cloud Firestore!`);
     } catch (err) {
       console.error(err);
       showToast('Failed to apply preset.');
@@ -278,12 +278,12 @@ export const ImageCustomizerModal: React.FC<ImageCustomizerModalProps> = ({
                     <h2 className="font-syne text-lg sm:text-xl font-black uppercase tracking-tight">
                       Website Image Manager
                     </h2>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-green-500/10 text-green-600 dark:text-green-400">
-                      <Database size={10} /> Auto-Saved & Persistent
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
+                      <Database size={10} /> Cloud Firestore Synced
                     </span>
                   </div>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    Replace or customize card images. Your uploads are permanently saved and will show every time you open the website.
+                    Replace or customize card images. Your uploads are saved directly to Cloud Firestore so they remain permanently available across all browsers and devices.
                   </p>
                 </div>
               </div>

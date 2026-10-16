@@ -134,7 +134,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
             </div>
 
             {/* Nav Links */}
-            <div className="flex flex-col space-y-6 my-auto font-syne text-3xl font-black uppercase text-left">
+            <div className="flex flex-col space-y-6 my-auto font-unbounded text-2xl sm:text-3xl font-black uppercase text-left">
               {/* WORK */}
               <button
                 onClick={() => {
@@ -142,9 +142,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('work');
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center"
               >
-                WORK
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>WORK</span>
               </button>
 
               {/* ABOUT (Active) */}
@@ -154,9 +155,9 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('about');
                 }}
-                className="text-[#e62b1e] flex items-center gap-2 cursor-pointer text-left"
+                className="text-[#e62b1e] flex items-center cursor-pointer text-left"
               >
-                <span>→</span>
+                <span className="w-7 inline-flex items-center shrink-0 text-xl">→</span>
                 <span>ABOUT</span>
               </button>
 
@@ -167,9 +168,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onViewChange('playground');
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center whitespace-nowrap"
               >
-                RECENT WORKS
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>RECENT WORKS</span>
               </button>
 
               {/* CONTACT */}
@@ -179,9 +181,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   setIsMobileMenuOpen(false);
                   onOpenContact();
                 }}
-                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left"
+                className="text-white hover:text-[#e62b1e] transition-colors cursor-pointer text-left flex items-center"
               >
-                CONTACT
+                <span className="w-7 inline-flex items-center shrink-0 text-xl" />
+                <span>CONTACT</span>
               </button>
             </div>
 
@@ -216,24 +219,25 @@ export const AboutView: React.FC<AboutViewProps> = ({
       </AnimatePresence>
 
       {/* ================= DESKTOP & TABLET TOP SECTION (>= md: Identically Aligned with Work Page) ================= */}
-      <div className="hidden md:flex w-full items-start justify-between px-6 lg:px-10 xl:px-14 pt-6 lg:pt-8 xl:pt-10 mb-4 lg:mb-6 select-none">
+      <div className="hidden md:flex w-full items-start justify-between px-4 md:px-6 lg:px-8 xl:px-14 pt-4 md:pt-6 lg:pt-8 xl:pt-10 mb-4 lg:mb-6 select-none">
         {/* Left: Menu Navigation Stack */}
-        <div className="w-48 lg:w-56 xl:w-64 shrink-0">
-          <div className="font-mono-tabular text-[10px] md:text-xs text-neutral-600 dark:text-neutral-400 mb-2 md:mb-2.5 tracking-wider select-none font-semibold">
+        <div className="w-56 sm:w-64 lg:w-72 shrink-0">
+          <div className="font-gotham font-semibold text-[10px] md:text-xs text-neutral-600 dark:text-neutral-400 mb-2 md:mb-2.5 tracking-wider select-none">
             Menu
           </div>
-          <nav className="flex flex-col font-syne text-base md:text-lg lg:text-xl xl:text-2xl font-black tracking-tight uppercase leading-[0.88] space-y-0.5">
+          <nav className="flex flex-col font-unbounded text-base md:text-lg lg:text-xl xl:text-2xl font-black tracking-tight uppercase leading-[0.95] space-y-1">
             {/* WORK */}
             <button
               onClick={() => {
                 soundManager.playClick();
                 onViewChange('work');
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              WORK
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">WORK</span>
             </button>
 
             {/* ABOUT (Active View) */}
@@ -242,9 +246,9 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 soundManager.playClick();
                 onViewChange('about');
               }}
-              className="text-left flex items-center gap-1.5 transition-colors cursor-pointer text-[#e62b1e]"
+              className="text-left flex items-center transition-colors cursor-pointer whitespace-nowrap text-[#e62b1e]"
             >
-              <span className="font-black text-sm md:text-base sm:text-lg">→</span>
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg">→</span>
               <span>ABOUT</span>
             </button>
 
@@ -254,11 +258,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 soundManager.playClick();
                 onViewChange('playground');
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              RECENT WORKS
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">RECENT WORKS</span>
             </button>
 
             {/* CONTACT */}
@@ -267,11 +272,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 soundManager.playClick();
                 onOpenContact();
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:text-[#e62b1e] transition-colors cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              CONTACT
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">CONTACT</span>
             </button>
           </nav>
         </div>
@@ -408,11 +414,11 @@ export const AboutView: React.FC<AboutViewProps> = ({
         </div>
       </div>
 
-      {/* ================= HERO CENTER: 20 - AVATAR - AND 25 (2024—2025 Archive) ================= */}
+      {/* ================= HERO CENTER: 20 - AVATAR - TO 26 (2020—2026 Archive) ================= */}
       <div className="relative w-full py-2 sm:py-4 md:py-6 flex items-center justify-between select-none overflow-visible max-w-4xl mx-auto px-4">
         {/* Left: Giant "20" */}
         <div className="flex-1 flex justify-center">
-          <span className="font-syne text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-black tracking-tighter text-neutral-400 dark:text-neutral-600 leading-none select-none drop-shadow-sm">
+          <span className="font-unbounded text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-black tracking-tighter text-neutral-400 dark:text-neutral-600 leading-none select-none drop-shadow-sm">
             20
           </span>
         </div>
@@ -492,13 +498,13 @@ export const AboutView: React.FC<AboutViewProps> = ({
           </svg>
         </div>
 
-        {/* Right: "AND 25" */}
+        {/* Right: "TO 26" */}
         <div className="flex-1 flex items-center justify-center relative">
-          <span className="font-syne text-xs sm:text-base md:text-lg font-black text-[#e62b1e] tracking-tight uppercase mr-1 sm:mr-2">
-            AND
+          <span className="font-unbounded text-xs sm:text-base md:text-lg font-black text-[#e62b1e] tracking-tight uppercase mr-1 sm:mr-2">
+            TO
           </span>
-          <span className="font-syne text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-black tracking-tighter text-neutral-400 dark:text-neutral-600 leading-none select-none drop-shadow-sm">
-            25
+          <span className="font-unbounded text-5xl sm:text-7xl md:text-8xl xl:text-9xl font-black tracking-tighter text-neutral-400 dark:text-neutral-600 leading-none select-none drop-shadow-sm">
+            26
           </span>
         </div>
       </div>
@@ -564,7 +570,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="pb-2.5 border-b border-black/5 dark:border-white/5">
                   <div className="flex items-baseline justify-between">
                     <div className="text-sm font-black text-[#e62b1e]">The Trost</div>
-                    <div className="font-mono-tabular text-[10px] text-neutral-500 font-bold uppercase">2025 – Present</div>
+                    <div className="font-mono-tabular text-[10px] text-neutral-500 font-bold uppercase">May 2025 – Aug 2026</div>
                   </div>
                   <div className="font-bold text-neutral-950 dark:text-neutral-100 text-[11px]">
                     Sr. Graphic Designer
@@ -825,7 +831,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                           <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 mb-1">
                             <div>
                               <span className="font-bold text-sm sm:text-base text-black">Sr. Graphic Designer</span>{' '}
-                              <span className="italic text-neutral-600 text-xs sm:text-sm">(2025-Present)</span>
+                              <span className="italic text-neutral-600 text-xs sm:text-sm">(May 2025 – Aug 2026)</span>
                             </div>
                             <div className="font-bold text-sm sm:text-base text-black">The Trost</div>
                           </div>

@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "ProjectImageOverride": {
+      "title": "Project Image Override",
+      "description": "Stores custom image overrides for portfolio projects so they persist permanently across all devices and sessions.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the project being customized"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Base64 data URL or public URL of the uploaded image"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of when the image was last updated"
+        }
+      },
+      "required": ["id", "imageUrl", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/custom_project_images/{projectId}": {
+      "schema": "#/entities/ProjectImageOverride",
+      "description": "Global custom project images overrides"
+    }
+  }
+}

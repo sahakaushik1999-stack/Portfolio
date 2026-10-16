@@ -43,7 +43,7 @@ export const ShowreelModal: React.FC<ShowreelModalProps> = ({ isOpen, onClose })
     },
     {
       title: 'KAUSHIK SAHA // GRAPHIC DESIGN & VIDEO EDITING',
-      category: '4+ Years Experience // New Delhi, India',
+      category: '6+ Years Experience // New Delhi, India',
       visual: 'bg-[#18181b]',
       text: 'K. SAHA',
       subtitle: 'BEHANCE.NET/GALLERY/207168461/PORTFOLIO',

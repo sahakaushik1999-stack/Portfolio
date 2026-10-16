@@ -16,7 +16,6 @@ import { ContactModal } from './components/ContactModal';
 import { ProjectDetailModal } from './components/ProjectDetailModal';
 import { ImageCustomizerModal } from './components/ImageCustomizerModal';
 import { ParticleTransitionOverlay } from './components/ParticleTransitionOverlay';
-import { PhotoshopCursor } from './components/PhotoshopCursor';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   getAllImageOverrides,
@@ -144,9 +143,6 @@ export default function App() {
           : 'bg-[#f4f4f1] text-[#0c0c0e]'
       }`}
     >
-      {/* Authentic Adobe Photoshop Pen Tool Custom Cursor */}
-      <PhotoshopCursor />
-
       {/* Signature Animated Intro Curtain (Available on replay) */}
       {isIntroVisible && (
         <IntroCurtain onComplete={() => setIsIntroVisible(false)} />
@@ -250,6 +246,18 @@ export default function App() {
       <ProjectDetailModal
         project={selectedCaseStudy}
         onClose={() => setSelectedCaseStudy(null)}
+        onNextProject={() => {
+          if (!selectedCaseStudy) return;
+          const currentIndex = activeProjects.findIndex((p) => p.id === selectedCaseStudy.id);
+          const nextIndex = (currentIndex + 1) % activeProjects.length;
+          setSelectedCaseStudy(activeProjects[nextIndex]);
+        }}
+        onPrevProject={() => {
+          if (!selectedCaseStudy) return;
+          const currentIndex = activeProjects.findIndex((p) => p.id === selectedCaseStudy.id);
+          const prevIndex = (currentIndex - 1 + activeProjects.length) % activeProjects.length;
+          setSelectedCaseStudy(activeProjects[prevIndex]);
+        }}
       />
 
       {/* Persistent Website Image Customizer Modal */}

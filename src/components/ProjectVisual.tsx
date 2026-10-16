@@ -4,9 +4,14 @@ import { Project } from '../types/portfolio';
 interface ProjectVisualProps {
   project: Project;
   isActive?: boolean;
+  fitMode?: 'cover' | 'contain';
 }
 
-export const ProjectVisual: React.FC<ProjectVisualProps> = ({ project, isActive = false }) => {
+export const ProjectVisual: React.FC<ProjectVisualProps> = ({
+  project,
+  isActive = false,
+  fitMode = 'cover',
+}) => {
   const { visualType, title, index, imageUrl, category, agency, themeColor } = project;
   const [imgError, setImgError] = useState(false);
 
@@ -16,7 +21,7 @@ export const ProjectVisual: React.FC<ProjectVisualProps> = ({ project, isActive 
 
   if (imageUrl && !imgError) {
     return (
-      <div className="relative w-full h-full rounded-none overflow-hidden select-none flex items-center justify-center border-0 outline-none shadow-none bg-transparent">
+      <div className={`relative w-full h-full rounded-none overflow-hidden select-none flex items-center justify-center border-0 outline-none shadow-none bg-transparent`}>
         <img
           src={imageUrl}
           alt={title}
@@ -24,9 +29,17 @@ export const ProjectVisual: React.FC<ProjectVisualProps> = ({ project, isActive 
           decoding="async"
           loading="eager"
           onError={() => setImgError(true)}
-          className={`w-full h-full object-cover object-center transition-transform duration-700 border-0 ${
-            isActive ? 'scale-105' : 'scale-100'
+          className={`transition-all duration-500 border-0 rounded-none ${
+            fitMode === 'contain'
+              ? 'w-auto h-auto max-h-[88vh] max-w-full object-contain drop-shadow-[0_30px_70px_rgba(0,0,0,0.85)] rounded-none'
+              : 'w-full h-full object-cover object-center rounded-none scale-100'
           }`}
+          style={{
+            imageRendering: 'auto',
+            WebkitBackfaceVisibility: 'visible',
+            backfaceVisibility: 'visible',
+          }}
+          draggable={false}
         />
       </div>
     );
@@ -289,7 +302,9 @@ export const ProjectVisual: React.FC<ProjectVisualProps> = ({ project, isActive 
   };
 
   return (
-    <div className="relative w-full h-full rounded-none overflow-hidden select-none bg-[#0a0a0c] border-0 outline-none ring-0 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] aspect-[4/5]">
+    <div className={`relative w-full h-full rounded-none overflow-hidden select-none bg-[#0a0a0c] border-0 outline-none ring-0 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] ${
+      fitMode === 'contain' ? 'flex items-center justify-center' : 'aspect-[4/5]'
+    }`}>
       {renderVisualContent()}
     </div>
   );

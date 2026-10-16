@@ -21,6 +21,8 @@ export interface Project {
     deliverables: string[];
     metrics: { label: string; value: string }[];
   };
+  creativeApproach?: string;
+  metaAdsStats?: import('../utils/metaAdsAnalytics').MinimalMetaAdsData;
 }
 
 export interface PlaygroundItem {

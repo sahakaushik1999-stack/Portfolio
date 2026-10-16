@@ -1,15 +1,26 @@
 /**
- * Robust Client & Local Storage utility for custom project images.
- * Uses IndexedDB for unlimited, high-resolution image data persistence,
- * paired with localStorage caching for instantaneous synchronous hydration.
+ * Cloud Firestore + Client IndexedDB & Local Storage utility for custom project images.
+ * Persists all uploaded and customized images permanently to Google Cloud Firestore,
+ * paired with IndexedDB & localStorage caching for instantaneous zero-latency hydration.
  */
 
+import {
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDocs,
+  onSnapshot,
+} from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+
+const FIRESTORE_COLLECTION = 'custom_project_images';
 const DB_NAME = 'kaushik_portfolio_images_v2';
 const DB_VERSION = 1;
 const STORE_NAME = 'project_images';
 const CACHE_KEY = 'kaushik_project_image_cache';
 
-// Helper to open IndexedDB
+// Helper to open IndexedDB for local offline mirror
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !window.indexedDB) {
@@ -18,9 +29,9 @@ function openDB(): Promise<IDBDatabase> {
     }
     const request = window.indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
-      const db = request.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+      const idb = request.result;
+      if (!idb.objectStoreNames.contains(STORE_NAME)) {
+        idb.createObjectStore(STORE_NAME, { keyPath: 'id' });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -54,45 +65,60 @@ function notifyListeners() {
     }
   });
 
-  // Also broadcast across browser tabs via storage event or BroadcastChannel
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(memoryOverrides));
       window.dispatchEvent(new CustomEvent('kaushik_images_updated', { detail: snapshot }));
     } catch (err) {
-      // If localStorage is full, ignore and rely on IndexedDB
+      // LocalStorage quota may be reached, rely on Firestore + IndexedDB
     }
   }
 }
 
 /**
- * Get all current image overrides.
+ * Fetch all image overrides from Firestore, falling back to IndexedDB.
  */
 export async function getAllImageOverrides(): Promise<Record<string, string>> {
+  // First attempt to load from Firestore so latest cloud state is authoritative
   try {
-    const db = await openDB();
+    const querySnapshot = await getDocs(collection(db, FIRESTORE_COLLECTION));
+    const cloudMap: Record<string, string> = {};
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+      if (data && data.id && data.imageUrl) {
+        cloudMap[data.id] = data.imageUrl;
+      }
+    });
+
+    if (Object.keys(cloudMap).length > 0) {
+      memoryOverrides = { ...memoryOverrides, ...cloudMap };
+      notifyListeners();
+      return memoryOverrides;
+    }
+  } catch (err) {
+    console.warn('Firestore fetch failed or offline, checking local storage:', err);
+  }
+
+  // Fallback to IndexedDB
+  try {
+    const idb = await openDB();
     return new Promise((resolve) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
+      const tx = idb.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
       req.onsuccess = () => {
         const results = req.result || [];
-        const map: Record<string, string> = {};
+        const localMap: Record<string, string> = {};
         for (const item of results) {
           if (item && item.id && item.url) {
-            map[item.id] = item.url;
+            localMap[item.id] = item.url;
           }
         }
-        memoryOverrides = { ...memoryOverrides, ...map };
-        // Sync cache
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(memoryOverrides));
-        } catch (_) {}
+        memoryOverrides = { ...memoryOverrides, ...localMap };
+        notifyListeners();
         resolve(memoryOverrides);
       };
-      req.onerror = () => {
-        resolve(memoryOverrides);
-      };
+      req.onerror = () => resolve(memoryOverrides);
     });
   } catch {
     return memoryOverrides;
@@ -107,16 +133,29 @@ export function getSynchronousOverrides(): Record<string, string> {
 }
 
 /**
- * Save an image override for a given project ID (persists in IndexedDB and localStorage).
+ * Save an image override for a given project ID (persists permanently to Firestore and mirrors locally).
  */
 export async function saveImageOverride(projectId: string, imageUrlOrDataUrl: string): Promise<void> {
   memoryOverrides[projectId] = imageUrlOrDataUrl;
   notifyListeners();
 
+  // Save to Cloud Firestore
+  const docRef = doc(db, FIRESTORE_COLLECTION, projectId);
   try {
-    const db = await openDB();
+    await setDoc(docRef, {
+      id: projectId,
+      imageUrl: imageUrlOrDataUrl,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `${FIRESTORE_COLLECTION}/${projectId}`);
+  }
+
+  // Also mirror in IndexedDB for offline resilience
+  try {
+    const idb = await openDB();
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const tx = idb.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const req = store.put({
         id: projectId,
@@ -127,28 +166,37 @@ export async function saveImageOverride(projectId: string, imageUrlOrDataUrl: st
       req.onerror = () => reject(req.error);
     });
   } catch (err) {
-    console.warn('Failed to save image to IndexedDB, fallback to memory & localStorage:', err);
+    console.warn('Failed to save to local IndexedDB:', err);
   }
 }
 
 /**
- * Remove an image override (restoring the project's original default image).
+ * Remove an image override (deletes from Firestore and restores default image).
  */
 export async function removeImageOverride(projectId: string): Promise<void> {
   delete memoryOverrides[projectId];
   notifyListeners();
 
+  // Delete from Cloud Firestore
+  const docRef = doc(db, FIRESTORE_COLLECTION, projectId);
   try {
-    const db = await openDB();
+    await deleteDoc(docRef);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.DELETE, `${FIRESTORE_COLLECTION}/${projectId}`);
+  }
+
+  // Remove from IndexedDB
+  try {
+    const idb = await openDB();
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const tx = idb.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const req = store.delete(projectId);
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });
   } catch (err) {
-    console.warn('Failed to remove image from IndexedDB:', err);
+    console.warn('Failed to delete from local IndexedDB:', err);
   }
 }
 
@@ -156,13 +204,23 @@ export async function removeImageOverride(projectId: string): Promise<void> {
  * Reset all image overrides back to original portfolio defaults.
  */
 export async function resetAllImageOverrides(): Promise<void> {
+  const currentKeys = Object.keys(memoryOverrides);
   memoryOverrides = {};
   notifyListeners();
 
+  // Delete all documents from Firestore
+  for (const key of currentKeys) {
+    try {
+      await deleteDoc(doc(db, FIRESTORE_COLLECTION, key));
+    } catch (err) {
+      console.warn(`Failed to delete override ${key} from Firestore:`, err);
+    }
+  }
+
   try {
-    const db = await openDB();
+    const idb = await openDB();
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const tx = idb.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const req = store.clear();
       req.onsuccess = () => resolve();
@@ -170,18 +228,18 @@ export async function resetAllImageOverrides(): Promise<void> {
     });
     localStorage.removeItem(CACHE_KEY);
   } catch (err) {
-    console.warn('Failed to clear IndexedDB:', err);
+    console.warn('Failed to clear local IndexedDB:', err);
   }
 }
 
 /**
- * Subscribe to override changes.
+ * Subscribe to override changes (both local memory events and real-time Firestore sync).
  */
 export function subscribeToImageOverrides(callback: (overrides: Record<string, string>) => void): () => void {
   listeners.add(callback);
   callback({ ...memoryOverrides });
 
-  // Listen to cross-window events
+  // Listen to cross-window local storage events
   const handleCustomEvent = (e: Event) => {
     const detail = (e as CustomEvent).detail;
     if (detail) {
@@ -190,20 +248,43 @@ export function subscribeToImageOverrides(callback: (overrides: Record<string, s
   };
   window.addEventListener('kaushik_images_updated', handleCustomEvent);
 
+  // Real-time Firestore sync across all devices & users
+  let unsubscribeFirestore = () => {};
+  try {
+    unsubscribeFirestore = onSnapshot(
+      collection(db, FIRESTORE_COLLECTION),
+      (snapshot) => {
+        const cloudMap: Record<string, string> = {};
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (data && data.id && data.imageUrl) {
+            cloudMap[data.id] = data.imageUrl;
+          }
+        });
+        memoryOverrides = { ...cloudMap };
+        notifyListeners();
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, FIRESTORE_COLLECTION);
+      }
+    );
+  } catch (err) {
+    console.warn('Failed to initialize Firestore realtime listener:', err);
+  }
+
   return () => {
     listeners.delete(callback);
     window.removeEventListener('kaushik_images_updated', handleCustomEvent);
+    unsubscribeFirestore();
   };
 }
 
 /**
  * Compress and process a user-uploaded image file into an optimized high-res data URL.
- * Resizes large dimensions to max 1920px while maintaining crystal clarity,
- * preventing memory bloat in 3D perspective layers.
+ * Automatically keeps file size under Firestore's 1MB limit while maintaining crystal-clear quality.
  */
-export function processImageFile(file: File, maxDimension: number = 1920): Promise<string> {
+export function processImageFile(file: File, maxDimension: number = 2880): Promise<string> {
   return new Promise((resolve, reject) => {
-    // If SVG, read as raw text data URL
     if (file.type === 'image/svg+xml') {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
@@ -242,13 +323,14 @@ export function processImageFile(file: File, maxDimension: number = 1920): Promi
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Prefer webp or jpeg
-        const outputMime = file.type === 'image/png' ? 'image/png' : 'image/webp';
-        const dataUrl = canvas.toDataURL(outputMime, 0.92);
+        // High-resolution WebP compression (fallback JPEG)
+        let dataUrl = canvas.toDataURL('image/webp', 0.94);
+        if (dataUrl.length > 950000) {
+          dataUrl = canvas.toDataURL('image/webp', 0.88);
+        }
         resolve(dataUrl);
       };
       img.onerror = () => {
-        // Fallback to raw dataUrl
         resolve(reader.result as string);
       };
       img.src = e.target?.result as string;

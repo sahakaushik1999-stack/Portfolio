@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Project, ViewMode, ThemeMode } from '../types/portfolio';
 import { ProjectVisual } from './ProjectVisual';
 import { soundManager } from '../utils/audio';
+import { getMinimalMetaAdsData } from '../utils/metaAdsAnalytics';
 import { Camera } from 'lucide-react';
 
 interface ProjectShowcase3DProps {
@@ -232,7 +233,7 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
       <div className="hidden md:block w-full h-full relative">
         {/* ================= BACKGROUND: 3D DIAGONAL RIBBON (Infinite Circular Deck, 4:5 Aspect Ratio) ================= */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none perspective-container overflow-hidden z-10">
-        <div className="relative w-[220px] md:w-[240px] lg:w-[320px] xl:w-[380px] 2xl:w-[460px] max-w-[34vw] max-h-[65vh] aspect-[4/5] preserve-3d">
+        <div className="relative w-[280px] md:w-[350px] lg:w-[440px] xl:w-[520px] 2xl:w-[600px] max-w-[42vw] max-h-[74vh] aspect-[4/5] preserve-3d">
           {projects.map((proj, idx) => {
             // Infinite circular neighborhood calculation
             let offset = (((idx - activeIndex) % total) + total) % total;
@@ -255,62 +256,62 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
             let zIndex = 20 - Math.abs(offset);
 
             if (offset === 0) {
-              // Active Center Card: 4:5 aspect ratio, centered, slight organic tilt
+              // Active Center Card: Prominent, heroic centerpiece with distinct forward pop
               x = 0;
               y = 0;
-              z = isTablet ? 30 : isSmallDesktop ? 38 : 45;
-              rotateZ = -2.5;
+              z = isTablet ? 45 : isSmallDesktop ? 60 : 75;
+              rotateZ = -2.2;
               rotateY = 0;
-              scale = 1.02;
+              scale = 1.08;
               opacity = 1;
               zIndex = 30;
             } else if (offset === 1) {
               // Card Ahead: fanning out to top-right safely within central corridor
-              x = isTablet ? 34 : isSmallDesktop ? 80 : 135;
-              y = isTablet ? -24 : isSmallDesktop ? -45 : -75;
+              x = isTablet ? 42 : isSmallDesktop ? 95 : 155;
+              y = isTablet ? -26 : isSmallDesktop ? -50 : -80;
               z = isTablet ? -75 : isSmallDesktop ? -100 : -130;
               rotateZ = -4.5;
               rotateY = isTablet ? -6 : -8;
-              scale = isTablet ? 0.82 : 0.85;
-              opacity = 0.85;
+              scale = isTablet ? 0.85 : 0.88;
+              opacity = 0.88;
               zIndex = 25;
             } else if (offset === 2) {
               // Further Card Ahead
-              x = isTablet ? 64 : isSmallDesktop ? 155 : 250;
-              y = isTablet ? -48 : isSmallDesktop ? -90 : -145;
+              x = isTablet ? 78 : isSmallDesktop ? 180 : 280;
+              y = isTablet ? -52 : isSmallDesktop ? -98 : -155;
               z = isTablet ? -145 : isSmallDesktop ? -195 : -250;
               rotateZ = -6.5;
               rotateY = isTablet ? -9 : -12;
-              scale = isTablet ? 0.68 : 0.70;
-              opacity = isTablet ? 0.38 : 0.48;
+              scale = isTablet ? 0.72 : 0.75;
+              opacity = isTablet ? 0.42 : 0.52;
               zIndex = 20;
             } else if (offset > 2) {
               // Incoming from top-right
-              x = isTablet ? 90 : isSmallDesktop ? 220 : 340;
-              y = isTablet ? -70 : isSmallDesktop ? -130 : -210;
+              x = isTablet ? 110 : isSmallDesktop ? 250 : 380;
+              y = isTablet ? -75 : isSmallDesktop ? -140 : -220;
               z = isTablet ? -210 : isSmallDesktop ? -280 : -360;
               rotateZ = -8.0;
-              scale = 0.55;
+              scale = 0.58;
               opacity = 0;
               zIndex = 10;
             } else if (offset === -1) {
               // Card Behind: Descending to lower-left safely
-              x = isTablet ? -34 : isSmallDesktop ? -75 : -125;
-              y = isTablet ? 24 : isSmallDesktop ? 45 : 75;
+              x = isTablet ? -42 : isSmallDesktop ? -90 : -145;
+              y = isTablet ? 26 : isSmallDesktop ? 50 : 80;
               z = isTablet ? -48 : isSmallDesktop ? -60 : -68;
               rotateZ = 4.2;
               rotateY = isTablet ? 6 : 8;
-              scale = isTablet ? 0.84 : 0.88;
-              opacity = 0.75;
+              scale = isTablet ? 0.86 : 0.89;
+              opacity = 0.78;
               zIndex = 15;
             } else if (offset < -1) {
               // Outgoing to lower-left
-              x = isTablet ? -64 : isSmallDesktop ? -145 : -230;
-              y = isTablet ? 48 : isSmallDesktop ? 90 : 145;
+              x = isTablet ? -78 : isSmallDesktop ? -170 : -265;
+              y = isTablet ? 52 : isSmallDesktop ? 98 : 155;
               z = isTablet ? -105 : isSmallDesktop ? -125 : -155;
               rotateZ = 7.5;
-              scale = isTablet ? 0.70 : 0.72;
-              opacity = isTablet ? 0.32 : 0.38;
+              scale = isTablet ? 0.72 : 0.75;
+              opacity = isTablet ? 0.35 : 0.42;
               zIndex = 5;
             }
 
@@ -344,17 +345,30 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                 }}
                 style={{
                   zIndex,
-                  transformStyle: 'preserve-3d',
+                  transformStyle: isCurrent ? 'flat' : 'preserve-3d',
+                  WebkitBackfaceVisibility: 'hidden',
+                  backfaceVisibility: 'hidden',
                 }}
-                className="absolute inset-0 pointer-events-auto cursor-pointer border-0 shadow-none outline-none ring-0 overflow-hidden aspect-[4/5]"
+                className={`absolute inset-0 pointer-events-auto cursor-pointer border-0 outline-none ring-0 overflow-hidden aspect-[4/5] rounded-none transition-shadow duration-300 ${
+                  isCurrent
+                    ? 'shadow-[0_28px_60px_-15px_rgba(0,0,0,0.55)] dark:shadow-[0_32px_75px_-15px_rgba(0,0,0,0.85)] ring-1 ring-white/10'
+                    : 'shadow-xl'
+                }`}
               >
                 <ProjectVisual project={proj} isActive={isCurrent} />
+
+                {/* Very small text telling the ROAS of the image on the top right corner */}
+                <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-30 pointer-events-none select-none">
+                  <span className="font-mono-tabular text-[9px] sm:text-[10px] font-bold tracking-widest text-white/95 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-black/60 backdrop-blur-sm px-1.5 py-0.5">
+                    ROAS {getMinimalMetaAdsData(proj.id, proj.title, proj.index).roas}
+                  </span>
+                </div>
 
                 {/* Case Study & Image Customizer Hover hints on active card */}
                 {isCurrent && (
                   <div className="absolute inset-0 bg-black/45 opacity-0 hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2.5 p-4 z-40">
                     <span className="px-4 py-2 bg-white text-black font-mono-tabular text-xs font-bold uppercase tracking-wider shadow-xl hover:bg-neutral-200 transition-colors">
-                      View Case Study
+                      Expand Overview
                     </span>
                     {onOpenImageCustomizer && (
                       <button
@@ -378,25 +392,23 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
       </div>
 
       {/* ================= LEFT COLUMN: MENU + METADATA + SERIAL NUMBER ================= */}
-      <div className="absolute left-4 md:left-6 lg:left-8 xl:left-14 top-0 bottom-0 w-40 md:w-44 lg:w-56 xl:w-64 2xl:w-72 z-20 flex flex-col justify-between py-5 md:py-6 lg:py-8 xl:py-10 pointer-events-none">
+      <div className="absolute left-4 md:left-6 lg:left-8 xl:left-14 top-0 bottom-0 w-56 sm:w-64 lg:w-72 2xl:w-80 z-20 flex flex-col justify-between py-4 md:py-6 lg:py-8 xl:py-10 pointer-events-none">
         {/* Top: Menu & Navigation Stack (Never Blurred - Crisp and Legible) */}
         <div className="pointer-events-auto">
-          <div className="font-mono-tabular text-[10px] md:text-xs text-neutral-600 dark:text-neutral-400 mb-2 md:mb-2.5 tracking-wider select-none font-semibold">
+          <div className="font-gotham font-semibold text-[10px] md:text-xs text-neutral-600 dark:text-neutral-400 mb-2 md:mb-2.5 tracking-wider select-none">
             Menu
           </div>
-          <nav className="flex flex-col font-syne text-base md:text-lg lg:text-xl xl:text-2xl font-black tracking-tight uppercase leading-[0.88] space-y-0.5">
-            {/* WORK */}
+          <nav className="flex flex-col font-unbounded text-base md:text-lg lg:text-xl xl:text-2xl font-black tracking-tight uppercase leading-[0.95] space-y-1">
+            {/* WORK (Active View) */}
             <button
               onClick={() => {
                 soundManager.playClick();
                 onViewChange('work');
               }}
-              className={`text-left flex items-center gap-1.5 group transition-colors cursor-pointer ${
-                theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
-              }`}
+              className="text-left flex items-center transition-colors cursor-pointer whitespace-nowrap text-[#e62b1e]"
             >
-              <span className="font-black text-sm md:text-base sm:text-lg">→</span>
-              <span className="hover:opacity-70 transition-opacity">WORK</span>
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg">→</span>
+              <span>WORK</span>
             </button>
 
             {/* ABOUT */}
@@ -405,11 +417,12 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                 soundManager.playClick();
                 onViewChange('about');
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:opacity-70 transition-opacity cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              ABOUT
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">ABOUT</span>
             </button>
 
             {/* RECENT WORKS */}
@@ -418,11 +431,12 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                 soundManager.playClick();
                 onViewChange('playground');
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:opacity-70 transition-opacity cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              RECENT WORKS
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">RECENT WORKS</span>
             </button>
 
             {/* CONTACT */}
@@ -431,11 +445,12 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                 soundManager.playClick();
                 onOpenContact();
               }}
-              className={`text-left pl-3.5 md:pl-4 sm:pl-5 hover:opacity-70 transition-opacity cursor-pointer ${
+              className={`text-left flex items-center group transition-colors cursor-pointer whitespace-nowrap hover:text-[#e62b1e] ${
                 theme === 'light' ? 'text-[#0c0c0e]' : 'text-white'
               }`}
             >
-              CONTACT
+              <span className="w-4 md:w-5 inline-flex items-center shrink-0 font-black text-sm md:text-base sm:text-lg" />
+              <span className="group-hover:opacity-80 transition-opacity">CONTACT</span>
             </button>
           </nav>
         </div>
@@ -506,7 +521,7 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
       {/* ================= TOP BAR (Middle & Right Items) ================= */}
       <header className="absolute top-0 left-0 right-0 z-20 pt-4 md:pt-6 lg:pt-8 xl:pt-10 px-4 md:px-6 lg:px-8 xl:px-14 flex items-start justify-between pointer-events-none">
         {/* Left spacer matching Menu width so middle items sit in the exact same aligned position across pages */}
-        <div className="w-40 md:w-44 lg:w-56 xl:w-64 2xl:w-72 shrink-0 pointer-events-none" />
+        <div className="w-56 sm:w-64 lg:w-72 2xl:w-80 shrink-0 pointer-events-none" />
 
         {/* Center: Audio & Working Globally (Positioned identically across all pages) */}
         <div className="hidden md:flex items-start gap-3 md:gap-5 lg:gap-10 xl:gap-16 font-mono-tabular text-xs pointer-events-auto">
@@ -605,31 +620,38 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
       </header>
 
       {/* ================= RIGHT COLUMN: INFINITE SMOOTH VERTICAL CAROUSEL ================= */}
-      <aside className="absolute right-4 md:right-6 lg:right-8 xl:right-14 top-0 bottom-0 z-20 w-40 md:w-44 lg:w-56 xl:w-72 2xl:w-80 flex flex-col items-center justify-center pointer-events-none">
+      <aside className="absolute right-4 md:right-6 lg:right-8 xl:right-14 top-0 bottom-0 z-20 w-52 sm:w-60 md:w-72 lg:w-80 xl:w-96 2xl:w-[410px] flex flex-col items-center justify-center pointer-events-none">
         {/* Smooth gradient vertical viewport with top/bottom edge fade */}
-        <div className="relative w-full h-[52vh] md:h-[56vh] max-h-[440px] lg:max-h-[520px] flex items-center justify-center overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_16%,black_84%,transparent_100%)]">
+        <div className="relative w-full h-[58vh] md:h-[62vh] max-h-[500px] lg:max-h-[580px] flex items-center justify-center overflow-hidden [mask-image:linear-gradient(to_bottom,transparent_0%,black_14%,black_86%,transparent_100%)]">
           {activeSlots.map((slotIndex) => {
             const projectIndex = ((slotIndex % total) + total) % total;
             const proj = projects[projectIndex];
             const isCurrent = slotIndex === virtualIndex;
             const distFromCenter = Math.abs(slotIndex - virtualIndex);
-            const dynamicItemHeight = windowWidth < 1024 ? 128 : 160;
+            const dynamicItemHeight = windowWidth < 1024 ? 175 : 215;
 
             return (
               <motion.div
                 key={slotIndex}
-                onClick={() => goToVirtualIndex(slotIndex)}
+                onClick={() => {
+                  if (isCurrent) {
+                    soundManager.playClick();
+                    onSelectCaseStudy(proj);
+                  } else {
+                    goToVirtualIndex(slotIndex);
+                  }
+                }}
                 initial={false}
                 animate={{
                   y: (slotIndex - virtualIndex) * dynamicItemHeight,
                   opacity: isCurrent ? 1 : distFromCenter === 1 ? 0.32 : distFromCenter === 2 ? 0.16 : 0.08,
-                  scale: isCurrent ? 1 : 0.96,
+                  scale: isCurrent ? 1 : 0.95,
                 }}
                 transition={{
                   duration: 0.55,
                   ease: [0.16, 1, 0.3, 1], // silky luxury spring curve matching ref video
                 }}
-                className={`absolute w-full flex flex-col items-center justify-center shrink-0 cursor-pointer select-none py-1 pointer-events-auto transition-opacity duration-300 ${
+                className={`absolute w-full flex flex-col items-center md:items-start justify-center shrink-0 cursor-pointer select-none py-2 px-3 md:px-4 pointer-events-auto transition-opacity duration-300 ${
                   isCurrent ? '' : 'hover:opacity-75'
                 }`}
                 style={{
@@ -638,14 +660,20 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                   height: dynamicItemHeight,
                 }}
               >
-                {/* Category in small muted caps (Matching Reference Video: Meta Ads) */}
-                <div className="font-mono-tabular text-[8px] md:text-[9px] lg:text-[10px] uppercase tracking-widest text-[#e62b1e] dark:text-[#e62b1e] font-semibold mb-0.5 md:mb-1 text-center truncate max-w-full">
-                  {proj.category || 'Meta Ads'}
+                {/* Index & Category tag */}
+                <div className="flex items-center gap-2 mb-1 font-mono-tabular text-[9px] md:text-[10px] uppercase tracking-widest">
+                  <span className="font-bold text-[#e62b1e]">{proj.index}</span>
+                  <span className="text-neutral-400">/</span>
+                  <span className="text-neutral-400">{projects.length < 10 ? `0${projects.length}` : projects.length}</span>
+                  <span className="text-neutral-500">•</span>
+                  <span className="font-semibold text-neutral-500 dark:text-neutral-400 truncate max-w-[190px]">
+                    {proj.category || 'Meta Ads'}
+                  </span>
                 </div>
 
-                {/* Studio / Client Title (Matching Reference Video: Bold, wide, uppercase) */}
+                {/* Main Headline */}
                 <h3
-                  className={`font-syne text-xs md:text-sm lg:text-lg xl:text-2xl font-black tracking-tight uppercase text-center leading-tight ${
+                  className={`font-syne text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-black tracking-tight uppercase leading-tight ${
                     isCurrent
                       ? theme === 'light'
                         ? 'text-[#0c0c0e]'
@@ -658,21 +686,47 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                   {proj.title}
                 </h3>
 
-                {/* Centered subtle dash (Matching Reference Video) */}
-                <div className="text-neutral-400 my-0.5 text-xs select-none text-center">—</div>
+                {/* Subtitle / Sub-headline */}
+                {isCurrent && proj.subtitle && (
+                  <h4 className="font-sans text-[10px] md:text-xs font-bold text-neutral-800 dark:text-neutral-200 mt-0.5 leading-snug">
+                    {proj.subtitle}
+                  </h4>
+                )}
 
-                {/* Multi-line Description (Matching Reference Video: Based on the image) */}
+                {/* Red Accent Bar */}
+                {isCurrent && (
+                  <div className="w-8 h-[2px] bg-[#e62b1e] my-1.5" />
+                )}
+
+                {/* Multi-line Description: Narrative from screenshot */}
                 <p
-                  className={`font-sans text-[9px] md:text-[10px] lg:text-xs max-w-[140px] md:max-w-[170px] lg:max-w-xs leading-relaxed px-1 text-center line-clamp-3 ${
+                  className={`font-sans text-[9px] md:text-[10px] lg:text-[11px] leading-relaxed line-clamp-3 ${
                     isCurrent
                       ? theme === 'light'
                         ? 'text-[#222222]'
                         : 'text-[#d4d4d8]'
-                      : 'text-neutral-400 dark:text-neutral-500'
+                      : 'text-neutral-400 dark:text-neutral-500 line-clamp-1'
                   }`}
                 >
                   {proj.description}
                 </p>
+
+                {/* Creative Approach Footer */}
+                {isCurrent && proj.creativeApproach && (
+                  <div className="w-full pt-1.5 mt-1.5 border-t border-neutral-300/40 dark:border-white/10 flex items-center justify-between text-left">
+                    <div className="flex flex-col">
+                      <span className="text-[8px] md:text-[9px] font-mono-tabular uppercase tracking-widest text-neutral-500">
+                        CREATIVE APPROACH
+                      </span>
+                      <span className="text-[9px] md:text-[10px] lg:text-[11px] font-black uppercase tracking-tight text-neutral-900 dark:text-white">
+                        {proj.creativeApproach}
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono-tabular text-[#e62b1e] font-bold">
+                      {proj.index} / {projects.length < 10 ? `0${projects.length}` : projects.length}
+                    </span>
+                  </div>
+                )}
               </motion.div>
             );
           })}
@@ -772,7 +826,7 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
 
           {/* 3D ACCORDION DECK: Bounded vertical footprint ensures zero overlapping */}
           <div className="relative w-full flex-1 flex items-center justify-center pointer-events-none perspective-container py-2 min-h-0">
-            <div className="relative w-[210px] xs:w-[240px] sm:w-[280px] max-w-[75vw] max-h-[48vh] aspect-[4/5] preserve-3d">
+            <div className="relative w-[230px] xs:w-[270px] sm:w-[320px] max-w-[85vw] max-h-[58vh] aspect-[4/5] preserve-3d">
               {projects.map((proj, idx) => {
                 let offset = (((idx - activeIndex) % total) + total) % total;
                 if (offset > total / 2) offset -= total;
@@ -791,45 +845,45 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                 if (offset === 0) {
                   x = 0;
                   y = 0;
-                  z = 30;
-                  rotateZ = -2.8;
+                  z = 40;
+                  rotateZ = -2.5;
                   rotateY = 0;
-                  scale = 1.02;
+                  scale = 1.08;
                   opacity = 1;
                   zIndex = 30;
                 } else if (offset === 1) {
-                  x = 42;
-                  y = -10;
+                  x = 48;
+                  y = -12;
                   z = -55;
                   rotateZ = -5.5;
                   rotateY = -8;
-                  scale = 0.88;
-                  opacity = 0.85;
+                  scale = 0.90;
+                  opacity = 0.88;
                   zIndex = 25;
                 } else if (offset === 2) {
-                  x = 80;
-                  y = -18;
+                  x = 92;
+                  y = -22;
                   z = -110;
                   rotateZ = -8.0;
                   rotateY = -12;
-                  scale = 0.76;
+                  scale = 0.78;
                   opacity = 0.45;
                   zIndex = 20;
                 } else if (offset === -1) {
-                  x = -40;
-                  y = 10;
+                  x = -48;
+                  y = 12;
                   z = -45;
                   rotateZ = 5.2;
                   rotateY = 8;
-                  scale = 0.88;
-                  opacity = 0.85;
+                  scale = 0.90;
+                  opacity = 0.88;
                   zIndex = 15;
                 } else if (offset === -2) {
-                  x = -78;
-                  y = 18;
+                  x = -92;
+                  y = 22;
                   z = -95;
                   rotateZ = 8.5;
-                  scale = 0.74;
+                  scale = 0.76;
                   opacity = 0.4;
                   zIndex = 10;
                 }
@@ -864,17 +918,28 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
                     }}
                     style={{
                       zIndex,
-                      transformStyle: 'preserve-3d',
+                      transformStyle: isCurrent ? 'flat' : 'preserve-3d',
                     }}
-                    className="absolute inset-0 pointer-events-auto cursor-pointer border-0 shadow-none outline-none ring-0 overflow-hidden aspect-[4/5] active:scale-[0.98] transition-transform"
+                    className={`absolute inset-0 pointer-events-auto cursor-pointer border-0 outline-none ring-0 overflow-hidden aspect-[4/5] rounded-none active:scale-[0.98] transition-all ${
+                      isCurrent
+                        ? 'shadow-[0_20px_45px_-10px_rgba(0,0,0,0.6)] dark:shadow-[0_24px_55px_-10px_rgba(0,0,0,0.85)] ring-1 ring-white/10'
+                        : 'shadow-lg'
+                    }`}
                   >
                     <ProjectVisual project={proj} isActive={isCurrent} />
+
+                    {/* Very small text telling the ROAS of the image on the top right corner */}
+                    <div className="absolute top-2 right-2 z-30 pointer-events-none select-none">
+                      <span className="font-mono-tabular text-[9px] font-bold tracking-widest text-white/95 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-black/60 backdrop-blur-sm px-1.5 py-0.5">
+                        ROAS {getMinimalMetaAdsData(proj.id, proj.title, proj.index).roas}
+                      </span>
+                    </div>
 
                     {/* Tap Cue on Active Card */}
                     {isCurrent && (
                       <div className="absolute inset-0 bg-black/15 opacity-0 active:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-3 py-1 bg-white text-black font-gotham text-[10px] font-bold uppercase tracking-wider shadow-lg">
-                          Tap To Open Case Study
+                        <span className="px-3.5 py-1.5 bg-white text-black font-gotham text-[10px] font-bold uppercase tracking-wider shadow-lg rounded-full">
+                          Tap to Expand Overview
                         </span>
                       </div>
                     )}
@@ -935,7 +1000,7 @@ export const ProjectShowcase3D: React.FC<ProjectShowcase3DProps> = ({
             }}
             className="font-gotham text-xs font-bold uppercase tracking-wider text-[#e62b1e] hover:underline cursor-pointer flex items-center gap-1"
           >
-            <span>Case Study</span>
+            <span>Overview</span>
             <span>↗</span>
           </button>
         </div>

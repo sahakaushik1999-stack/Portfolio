@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Project } from '../types/portfolio';
 import { ProjectVisual } from './ProjectVisual';
-import { X, ArrowRight, Award, CheckCircle2 } from 'lucide-react';
+import { getMinimalMetaAdsData } from '../utils/metaAdsAnalytics';
 import { soundManager } from '../utils/audio';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ProjectDetailModalProps {
   project: Project | null;
@@ -18,169 +19,204 @@ export const ProjectDetailModal: React.FC<ProjectDetailModalProps> = ({
   onNextProject,
   onPrevProject,
 }) => {
+  // Global Keyboard shortcuts: Esc to close, Left/Right arrows to navigate
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'ArrowRight' && onNextProject) {
+        soundManager.playClick();
+        onNextProject();
+      } else if (e.key === 'ArrowLeft' && onPrevProject) {
+        soundManager.playClick();
+        onPrevProject();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, onNextProject, onPrevProject]);
 
   if (!project) return null;
+
+  // Creative-specific distinct randomized metrics:
+  // ROAS < 6, CTR < 3%, CPM < 1000 INR, CVR < 6%
+  const stats = getMinimalMetaAdsData(project.id, project.title, project.index);
 
   return (
     <AnimatePresence>
       <div
         onClick={onClose}
-        className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/85 backdrop-blur-md px-3 sm:px-6 md:px-8 py-6 sm:py-10 flex flex-col items-center justify-start min-h-screen"
+        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 md:p-10 lg:p-14 overflow-y-auto overscroll-contain select-none text-white transition-all duration-300"
       >
+        {/* Minimalist Top Right Close Button (Borderless, pure text & icon) */}
+        <button
+          onClick={() => {
+            soundManager.playClick();
+            onClose();
+          }}
+          className="fixed top-5 right-5 sm:top-8 sm:right-10 z-50 flex items-center gap-2 font-mono-tabular text-xs uppercase tracking-widest text-neutral-400 hover:text-white transition-colors cursor-pointer"
+          aria-label="Close overview"
+        >
+          <span>Close</span>
+          <span className="text-[10px] text-neutral-500">[Esc]</span>
+          <X className="w-4 h-4 ml-0.5" />
+        </button>
+
+        {/* Minimalist Bottom Navigation (Prev / Next links, borderless) */}
+        <div className="fixed bottom-5 right-5 sm:bottom-8 sm:right-10 z-50 flex items-center gap-6 font-mono-tabular text-xs uppercase tracking-widest text-neutral-400">
+          {onPrevProject && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                soundManager.playClick();
+                onPrevProject();
+              }}
+              className="hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Prev</span>
+            </button>
+          )}
+          {onNextProject && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                soundManager.playClick();
+                onNextProject();
+              }}
+              className="hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* ================= MAIN SCALED STAGE (NO BOXES, BORDERLESS) ================= */}
         <motion.div
           onClick={(e) => e.stopPropagation()}
-          initial={{ opacity: 0, scale: 0.97, y: 16 }}
+          initial={{ opacity: 0, scale: 0.98, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.97, y: 16 }}
-          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-4xl bg-[#f7f7f5] dark:bg-[#0c0c0e] text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-800 shadow-2xl shrink-0 my-auto sm:my-4"
+          exit={{ opacity: 0, scale: 0.98, y: 12 }}
+          transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-7xl 2xl:max-w-[1480px] mx-auto flex flex-col md:flex-row items-center justify-between gap-10 md:gap-14 lg:gap-20 my-auto py-6 sm:py-2"
         >
-          {/* Header (Sticky so close button and title are always reachable without clipping) */}
-          <div className="sticky top-0 z-30 flex items-center justify-between px-6 sm:px-8 py-4 sm:py-5 bg-[#f7f7f5]/95 dark:bg-[#0c0c0e]/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800">
-            <div className="flex items-center gap-3">
-              <span className="font-syne text-xl sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-                {project.title}
-              </span>
-              <span className="font-mono-tabular text-xs font-bold text-[#e62b1e]">
-                #{project.index}
-              </span>
-            </div>
+          {/* ----------------- LEFT SIDE: LARGER & SHARPER HIGH-RES IMAGE ----------------- */}
+          <div className="w-full md:w-[54%] lg:w-[56%] flex items-center justify-center shrink-0">
+            <div className="relative w-full max-h-[88vh] flex items-center justify-center">
+              <ProjectVisual project={project} isActive={true} fitMode="contain" />
 
-            <button
-              onClick={() => {
-                soundManager.playClick();
-                onClose();
-              }}
-              className="p-2 -mr-2 text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-black/5 dark:hover:bg-white/10"
-              aria-label="Close project modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
+              {/* Very small text telling the ROAS of the image on the top right corner */}
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 pointer-events-none select-none">
+                <span className="font-mono-tabular text-[10px] sm:text-[11px] font-bold tracking-widest text-white/95 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] bg-black/60 backdrop-blur-sm px-2 py-0.5">
+                  ROAS {stats.roas}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Media Container */}
-          <div className="relative aspect-video max-h-[55vh] w-full bg-black overflow-hidden border-b border-neutral-200 dark:border-neutral-800">
-            <ProjectVisual project={project} isActive={true} />
-          </div>
-
-          {/* Content Body */}
-          <div className="p-6 sm:p-10 space-y-8">
-            {/* Metadata Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800 text-xs font-mono-tabular">
-              <div>
-                <span className="text-neutral-400 uppercase text-[10px] block">Brand</span>
-                <span className="font-medium text-neutral-900 dark:text-white">{project.client}</span>
+          {/* ----------------- RIGHT SIDE: CLEAN MINIMAL DATA (NO BOXES) ----------------- */}
+          <div className="w-full md:w-[46%] lg:w-[44%] flex flex-col justify-center space-y-6 sm:space-y-8 text-left">
+            {/* Meta Ads & Creative Title */}
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2.5 font-mono-tabular text-xs uppercase tracking-widest text-neutral-400">
+                <span className="font-bold text-[#e62b1e]">{project.index}</span>
+                <span className="text-neutral-500">/</span>
+                <span className="text-neutral-400">15</span>
+                <span className="text-neutral-600">—</span>
+                <span className="text-neutral-300 font-semibold">{project.category}</span>
               </div>
-              <div>
-                <span className="text-neutral-400 uppercase text-[10px] block">Category</span>
-                <span className="font-medium text-neutral-900 dark:text-white">{project.category}</span>
-              </div>
-              <div>
-                <span className="text-neutral-400 uppercase text-[10px] block">Agency & Studio</span>
-                <span className="font-medium text-neutral-900 dark:text-white">{project.agency}</span>
-              </div>
-            </div>
 
-            {/* Overview */}
-            <div>
-              <h3 className="font-syne text-lg font-bold text-neutral-900 dark:text-white mb-2">
-                Overview
-              </h3>
-              <p className="font-sans text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
-                {project.caseStudy.overview}
-              </p>
-            </div>
+              <div className="flex flex-col gap-1">
+                <h2 className="font-unbounded text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-tight">
+                  {project.title}
+                </h2>
+                {project.subtitle && (
+                  <h3 className="font-sans text-xs sm:text-sm md:text-base font-bold text-neutral-200 tracking-normal">
+                    {project.subtitle}
+                  </h3>
+                )}
+              </div>
 
-            {/* Challenge & Solution Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-5 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40">
-                <h4 className="font-mono-tabular text-xs uppercase tracking-wider text-[#e62b1e] font-bold mb-2">
-                  The Challenge
-                </h4>
-                <p className="font-sans text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  {project.caseStudy.challenge}
+              {/* Red Accent Bar */}
+              <div className="w-10 h-[3px] bg-[#e62b1e] rounded-none my-1" />
+
+              <div className="space-y-2 pt-0.5 max-w-lg">
+                <p className="font-sans text-xs sm:text-sm text-neutral-200 leading-relaxed font-normal">
+                  {project.description}
                 </p>
               </div>
 
-              <div className="p-5 border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/40">
-                <h4 className="font-mono-tabular text-xs uppercase tracking-wider text-emerald-500 font-bold mb-2">
-                  The Solution
-                </h4>
-                <p className="font-sans text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                  {project.caseStudy.solution}
-                </p>
-              </div>
-            </div>
-
-            {/* Deliverables & Real Impact Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-              <div>
-                <h4 className="font-mono-tabular text-xs uppercase tracking-wider text-neutral-400 mb-3">
-                  Key Deliverables
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {project.caseStudy.deliverables.map((item, i) => (
-                    <span
-                      key={i}
-                      className="px-2.5 py-1 text-xs font-mono-tabular bg-neutral-200/80 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
-                    >
-                      {item}
+              {/* Creative Approach */}
+              {project.creativeApproach && (
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="font-mono-tabular text-[9px] sm:text-[10px] uppercase tracking-widest text-neutral-400">
+                      CREATIVE APPROACH
                     </span>
-                  ))}
+                    <span className="font-unbounded text-xs sm:text-sm font-black uppercase text-white tracking-tight">
+                      {project.creativeApproach}
+                    </span>
+                  </div>
+                  <span className="font-mono-tabular text-xs text-[#e62b1e] font-bold">
+                    {project.index} / 15
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* THE 4 REQUESTED RANDOMIZED STATS PER CREATIVE (ZERO BOXES):
+                ROAS < 6, CTR < 3, CPM < 1000 INR, CVR < 6% */}
+            <div className="grid grid-cols-2 gap-x-10 sm:gap-x-14 gap-y-7 sm:gap-y-9 pt-2">
+              {/* ROAS < 6 */}
+              <div className="space-y-1">
+                <span className="font-mono-tabular text-xs font-bold tracking-widest uppercase text-neutral-400 block">
+                  ROAS
+                </span>
+                <div className="font-unbounded text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none">
+                  {stats.roas}
                 </div>
               </div>
 
-              <div>
-                <h4 className="font-mono-tabular text-xs uppercase tracking-wider text-neutral-400 mb-3">
-                  Measurable Impact
-                </h4>
-                <div className="grid grid-cols-3 gap-3">
-                  {project.caseStudy.metrics.map((m, i) => (
-                    <div key={i} className="p-3 bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-center">
-                      <div className="font-syne text-base font-bold text-neutral-900 dark:text-white">
-                        {m.value}
-                      </div>
-                      <div className="font-mono-tabular text-[9px] text-neutral-500 uppercase mt-0.5">
-                        {m.label}
-                      </div>
-                    </div>
-                  ))}
+              {/* CTR < 3 */}
+              <div className="space-y-1">
+                <span className="font-mono-tabular text-xs font-bold tracking-widest uppercase text-neutral-400 block">
+                  CTR
+                </span>
+                <div className="font-unbounded text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none">
+                  {stats.ctr}
+                </div>
+              </div>
+
+              {/* CPM < 1000 INR */}
+              <div className="space-y-1">
+                <span className="font-mono-tabular text-xs font-bold tracking-widest uppercase text-neutral-400 block">
+                  CPM
+                </span>
+                <div className="font-unbounded text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none">
+                  {stats.cpm}
+                </div>
+              </div>
+
+              {/* CVR < 6% */}
+              <div className="space-y-1">
+                <span className="font-mono-tabular text-xs font-bold tracking-widest uppercase text-neutral-400 block">
+                  CVR
+                </span>
+                <div className="font-unbounded text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-none">
+                  {stats.cvr}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Footer Controls */}
-          <div className="px-6 sm:px-10 py-4 bg-neutral-100 dark:bg-neutral-900/80 border-t border-neutral-200 dark:border-neutral-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono-tabular">
-            <span className="text-neutral-500 hidden sm:inline">
-              Press [Esc] to exit
-            </span>
-
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-              <a
-                href="https://www.behance.net/gallery/207168461/Portfolio"
-                target="_blank"
-                rel="noreferrer"
-                className="px-3.5 sm:px-4 py-2 font-bold uppercase tracking-wider bg-transparent border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:text-[#e62b1e] hover:border-[#e62b1e] transition-colors text-center"
-              >
-                View on Behance ↗
-              </a>
-              <button
-                onClick={() => {
-                  soundManager.playClick();
-                  onClose();
-                }}
-                className="px-4 py-2 font-bold uppercase tracking-wider bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-[#e62b1e] hover:text-white transition-colors cursor-pointer text-center"
-              >
-                Done Viewing
-              </button>
+            {/* Subtle Footer Meta (Clean and borderless) */}
+            <div className="pt-3 flex items-center justify-between text-xs font-mono-tabular text-neutral-400">
+              <span>
+                {project.client} • {project.launchDate}
+              </span>
+              <span className="hidden sm:inline text-neutral-500">
+                Sample Size: 60,000 Verified Buyers
+              </span>
             </div>
           </div>
         </motion.div>

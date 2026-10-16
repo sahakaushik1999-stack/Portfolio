@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 100 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    match /custom_project_images/{projectId} {
+      allow read: if true;
+      allow create, update: if isValidId(projectId)
+        && request.resource.data.id == projectId
+        && request.resource.data.imageUrl is string
+        && request.resource.data.imageUrl.size() <= 1000000
+        && request.resource.data.updatedAt is string;
+      allow delete: if isValidId(projectId);
+    }
+
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

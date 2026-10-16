@@ -40,7 +40,7 @@ const VIEW_METADATA: Record<
   },
   about: {
     title: 'ABOUT',
-    subtitle: 'KAUSHIK SAHA // 4+ YEARS EXPERIENCE // NEW DELHI',
+    subtitle: 'KAUSHIK SAHA // 6+ YEARS EXPERIENCE // NEW DELHI',
     index: '02',
     category: 'BIOGRAPHY & EMPLOYMENT DOSSIER',
   },
