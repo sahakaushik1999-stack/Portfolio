@@ -49,14 +49,34 @@ export default function App() {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState<boolean>(false);
   const [customizerProjectId, setCustomizerProjectId] = useState<string | undefined>(undefined);
 
+  const [quotaNotice, setQuotaNotice] = useState<{ isQuota: boolean; upgradeUrl: string } | null>(null);
+
   // Hydrate custom images from IndexedDB on startup and subscribe to updates
   useEffect(() => {
     getAllImageOverrides().then((overrides) => {
       setCustomOverrides(overrides);
     });
-    return subscribeToImageOverrides((overrides) => {
+    const unsubscribe = subscribeToImageOverrides((overrides) => {
       setCustomOverrides(overrides);
     });
+
+    const handleQuotaEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.isQuotaExceeded) {
+        setQuotaNotice({
+          isQuota: true,
+          upgradeUrl:
+            detail.upgradeUrl ||
+            'https://console.firebase.google.com/project/hybrid-arena-jv4kj/firestore/databases/ai-studio-portfolio-402ac0fd-35d0-468a-b307-80d02d99cde4/data?openUpgradeDialog=true',
+        });
+      }
+    };
+    window.addEventListener('firestore_quota_status', handleQuotaEvent);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('firestore_quota_status', handleQuotaEvent);
+    };
   }, []);
 
   // Compute active projects with overridden images
@@ -269,6 +289,32 @@ export default function App() {
         initialProjectId={customizerProjectId}
         customOverrides={customOverrides}
       />
+
+      {/* Firestore Quota Notice Banner */}
+      {quotaNotice && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[100] max-w-xl w-[92%] px-4 py-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 backdrop-blur-md shadow-xl text-xs font-mono flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="shrink-0 text-amber-500 font-bold">⚡</span>
+            <span className="truncate">
+              Firestore free-tier daily read limit reached. Local cache is active.
+            </span>
+            <a
+              href={quotaNotice.upgradeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="underline font-bold text-amber-600 dark:text-amber-300 shrink-0 hover:opacity-80"
+            >
+              Upgrade DB
+            </a>
+          </div>
+          <button
+            onClick={() => setQuotaNotice(null)}
+            className="p-1 hover:opacity-75 cursor-pointer shrink-0 text-neutral-500"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }

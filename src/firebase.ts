@@ -31,9 +31,20 @@ export interface FirestoreErrorInfo {
   };
 }
 
+let isQuotaExceededGlobal = false;
+
+export function getFirestoreQuotaExceeded(): boolean {
+  return isQuotaExceededGlobal;
+}
+
+export function setFirestoreQuotaExceeded(val: boolean): void {
+  isQuotaExceededGlobal = val;
+}
+
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errMessage = error instanceof Error ? error.message : String(error);
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errMessage,
     authInfo: {
       userId: null,
       email: null,
@@ -43,6 +54,39 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     operationType,
     path,
   };
+
+  const lower = errMessage.toLowerCase();
+  const isQuota =
+    lower.includes('quota') ||
+    lower.includes('resource-exhausted') ||
+    lower.includes('free daily read units');
+  const isOffline =
+    lower.includes('offline') ||
+    lower.includes('unavailable') ||
+    lower.includes('the client is offline');
+
+  if (isQuota || isOffline) {
+    if (isQuota) isQuotaExceededGlobal = true;
+    console.warn(`Firestore ${isQuota ? 'Quota Limit Exceeded' : 'Offline'} on ${path}:`, errMessage);
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('firestore_quota_status', {
+          detail: {
+            isQuotaExceeded: isQuota,
+            isOffline,
+            error: errMessage,
+            projectId: firebaseConfig.projectId,
+            databaseId: firebaseConfig.firestoreDatabaseId,
+            upgradeUrl: `https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore/databases/${firebaseConfig.firestoreDatabaseId}/data?openUpgradeDialog=true`,
+          },
+        })
+      );
+    }
+    // Return gracefully without throwing fatal uncaught exceptions
+    return;
+  }
+
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
@@ -53,8 +97,13 @@ export async function testConnection(): Promise<boolean> {
     await getDocFromServer(doc(db, 'test', 'connection'));
     return true;
   } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn('Firebase Firestore client is offline, using local cache.');
+    const msg = error instanceof Error ? error.message : String(error);
+    const lower = msg.toLowerCase();
+    if (lower.includes('the client is offline') || lower.includes('quota') || lower.includes('resource-exhausted')) {
+      console.warn('Firebase Firestore client is offline or quota reached, using local cache.');
+      if (lower.includes('quota') || lower.includes('resource-exhausted')) {
+        isQuotaExceededGlobal = true;
+      }
       return false;
     }
     // Expected on initial run if test doc doesn't exist yet, but connection was made
