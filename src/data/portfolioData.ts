@@ -635,6 +635,43 @@ export const ABOUT_DATA = {
     'Art Direction',
     'Visual Storytelling'
   ],
+  productionHighlights: [
+    {
+      metric: '900+',
+      label: 'Meta ads',
+      fullText: '900+ Meta ads',
+      description: 'Performance-driven Meta ad creatives (3.5–6x ROAS)',
+      tag: 'Paid Social'
+    },
+    {
+      metric: '6000+',
+      label: 'Statics',
+      fullText: '6000+ Statics',
+      description: 'High-converting single image creatives & web banners',
+      tag: 'Static Creatives'
+    },
+    {
+      metric: '600+',
+      label: 'Videos',
+      fullText: '600+ Videos',
+      description: 'Motion cuts, Reels & TikTok video ad formats',
+      tag: 'Motion & Video'
+    },
+    {
+      metric: '400+',
+      label: 'Carousels',
+      fullText: '400+ Carousels',
+      description: 'Sequential narrative & multi-card product decks',
+      tag: 'Carousels'
+    },
+    {
+      metric: '300+',
+      label: 'Print',
+      fullText: '300+ Print',
+      description: 'Packaging dielines, print collateral & pre-press systems',
+      tag: 'Print & Packaging'
+    }
+  ],
   education: [
     {
       degree: 'Diploma in Animation & Multimedia',

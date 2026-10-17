@@ -3,7 +3,25 @@ import { ViewMode, ThemeMode } from '../types/portfolio';
 import { ABOUT_DATA } from '../data/portfolioData';
 import { soundManager } from '../utils/audio';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Check, FileText, Download, Mail, Phone, ExternalLink, GraduationCap, Briefcase, Wrench, Award, ChevronRight } from 'lucide-react';
+import {
+  X,
+  Check,
+  FileText,
+  Download,
+  Mail,
+  Phone,
+  ExternalLink,
+  GraduationCap,
+  Briefcase,
+  Wrench,
+  Award,
+  ChevronRight,
+  Sparkles,
+  Video,
+  Layers,
+  Printer,
+  Image as ImageIcon,
+} from 'lucide-react';
 
 interface AboutViewProps {
   onViewChange: (view: ViewMode) => void;
@@ -391,22 +409,24 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <p className="font-sans text-xs font-semibold text-[#0c0c0e] dark:text-neutral-200 leading-relaxed">
             6+ Years Experience • Leading in-house creative team for Health &amp; Wellness B2C brand • Meta Ads 3.5–6x ROAS • Creative Direction &amp; Brand Strategy
           </p>
-          <div className="pt-2 flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={handleCopyPhone}
-              className="font-mono-tabular text-xs font-bold underline text-neutral-800 dark:text-neutral-200 hover:text-[#e62b1e] cursor-pointer"
-            >
-              {copiedPhone ? '✓ Phone Copied!' : ABOUT_DATA.phone}
-            </button>
-            <button
-              onClick={handleCopyEmail}
-              className="font-mono-tabular text-xs font-bold underline text-neutral-800 dark:text-neutral-200 hover:text-[#e62b1e] cursor-pointer"
-            >
-              {copiedEmail ? '✓ Email Copied!' : ABOUT_DATA.email}
-            </button>
+
+          {/* Key Deliverables Pill Strip on Mobile */}
+          <div className="pt-1.5 pb-0.5 flex flex-wrap gap-1.5">
+            {ABOUT_DATA.productionHighlights.map((item, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-unbounded font-black border border-black/10 dark:border-white/15 bg-white/60 dark:bg-black/50 shadow-xs"
+              >
+                <span className="text-[#e62b1e]">{item.metric}</span>
+                <span className="text-neutral-900 dark:text-neutral-100 uppercase">{item.label}</span>
+              </span>
+            ))}
+          </div>
+
+          <div className="pt-2 flex items-center justify-end">
             <button
               onClick={handleOpenResume}
-              className="font-mono-tabular text-[11px] font-bold px-2.5 py-1 bg-[#e62b1e] text-white rounded uppercase tracking-wider cursor-pointer ml-auto"
+              className="font-mono-tabular text-[11px] font-bold px-3 py-1.5 bg-[#e62b1e] hover:bg-[#c92217] text-white rounded uppercase tracking-wider cursor-pointer transition-colors"
             >
               View Updated Resume
             </button>
@@ -508,6 +528,77 @@ export const AboutView: React.FC<AboutViewProps> = ({
           </span>
         </div>
       </div>
+
+      {/* ================= PRIMARY HIGHLIGHT OF THE PAGE: PRODUCTION CAPSULES ================= */}
+      <section
+        aria-label="Core Highlights: Production Scale & Deliverables"
+        className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 my-4 sm:my-6 md:my-8 select-none"
+      >
+        <div className="max-w-6xl mx-auto">
+          {/* Eyebrow / Section Title */}
+          <div className="flex items-center justify-between pb-2 mb-3.5 sm:mb-4 border-b border-black/10 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#e62b1e] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#e62b1e]" />
+              </span>
+              <span className="font-mono-tabular text-xs sm:text-sm font-black uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
+                Key Highlights // Production Scale
+              </span>
+              <span className="hidden md:inline font-mono-tabular text-xs text-neutral-500">
+                // 6+ Years High-Converting Deliverables
+              </span>
+            </div>
+            <div className="font-mono-tabular text-[10px] sm:text-xs font-bold text-[#e62b1e] tracking-wider uppercase">
+              Main Highlights
+            </div>
+          </div>
+
+          {/* 5 Prominent Capsules */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 md:gap-4 lg:gap-5">
+            {ABOUT_DATA.productionHighlights.map((item, idx) => {
+              const icons = [
+                <Sparkles key="sparkles" className="w-4 h-4 text-[#e62b1e]" />,
+                <ImageIcon key="image" className="w-4 h-4 text-[#e62b1e]" />,
+                <Video key="video" className="w-4 h-4 text-[#e62b1e]" />,
+                <Layers key="layers" className="w-4 h-4 text-[#e62b1e]" />,
+                <Printer key="printer" className="w-4 h-4 text-[#e62b1e]" />,
+              ];
+              const icon = icons[idx % icons.length];
+
+              return (
+                <div
+                  key={idx}
+                  onClick={() => soundManager.playClick()}
+                  className={`group relative rounded-full px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 md:py-3.5 transition-all duration-300 flex items-center gap-2.5 sm:gap-3 border shadow-sm cursor-pointer ${
+                    theme === 'light'
+                      ? 'bg-white/95 border-neutral-300 hover:border-[#e62b1e] hover:shadow-[0_8px_25px_rgba(230,43,30,0.18)] hover:-translate-y-0.5'
+                      : 'bg-[#121216]/95 border-white/15 hover:border-[#e62b1e] hover:shadow-[0_8px_25px_rgba(230,43,30,0.28)] hover:-translate-y-0.5'
+                  }`}
+                  title={item.description}
+                >
+                  {/* Subtle red indicator badge with icon */}
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#e62b1e]/10 group-hover:bg-[#e62b1e] flex items-center justify-center shrink-0 transition-colors duration-300">
+                    <span className="group-hover:text-white transition-colors duration-300">
+                      {icon}
+                    </span>
+                  </div>
+
+                  {/* Capsule Text: Metric + Label */}
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <span className="font-unbounded font-black text-sm sm:text-base md:text-lg text-[#e62b1e] leading-none tracking-tight whitespace-nowrap">
+                      {item.metric}
+                    </span>
+                    <span className="font-unbounded font-extrabold text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 uppercase tracking-tight whitespace-nowrap">
+                      {item.label}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
       {/* ================= BOTTOM 4-COLUMN MONOGRAPH (Updated Resume Content) ================= */}
       <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-14 pb-8">
@@ -746,17 +837,17 @@ export const AboutView: React.FC<AboutViewProps> = ({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-white text-[#111111] shadow-2xl border border-neutral-300 p-6 sm:p-10 select-text font-sans"
+              className="w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-white text-[#111111] shadow-2xl border border-neutral-300 p-3.5 sm:p-6 md:p-8 select-text font-sans"
             >
               {/* Modal Top Bar (Print & Close controls) */}
-              <div className="flex items-center justify-between pb-4 border-b border-neutral-200 mb-6 text-xs font-mono-tabular">
-                <span className="text-[#e62b1e] font-bold uppercase tracking-wider">
+              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-neutral-200 mb-4 sm:mb-6 text-xs font-mono-tabular">
+                <span className="text-[#e62b1e] font-bold uppercase tracking-wider text-[11px] sm:text-xs">
                   KAUSHIK SAHA — UPDATED RESUME
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => window.print()}
-                    className="p-1.5 px-3 rounded border border-neutral-300 hover:bg-neutral-100 transition-colors flex items-center gap-1.5 font-bold uppercase cursor-pointer"
+                    className="p-1 sm:p-1.5 px-2 sm:px-3 rounded border border-neutral-300 hover:bg-neutral-100 transition-colors flex items-center gap-1 sm:gap-1.5 font-bold uppercase cursor-pointer text-[11px] sm:text-xs"
                     title="Print or Save as PDF"
                   >
                     <Download className="w-3.5 h-3.5" />
@@ -764,7 +855,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   </button>
                   <button
                     onClick={() => setIsResumeModalOpen(false)}
-                    className="p-1.5 rounded hover:bg-neutral-100 transition-colors cursor-pointer"
+                    className="p-1 sm:p-1.5 rounded hover:bg-neutral-100 transition-colors cursor-pointer"
                     aria-label="Close"
                   >
                     <X className="w-5 h-5" />
@@ -772,12 +863,17 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 </div>
               </div>
 
-              {/* Exact Resume Layout (Left vertical bar + Right content matching image.png) */}
-              <div className="grid grid-cols-[100px_1fr] sm:grid-cols-[130px_1fr] md:grid-cols-[160px_1fr] border border-black">
-                {/* Left Column: Vertical KAUSHIK SAHA */}
-                <div className="border-r border-black flex items-center justify-center p-4 bg-white select-none">
+              {/* Responsive Resume Layout: Full-width stacked on mobile, Vertical Column on sm+ */}
+              <div className="border border-black w-full overflow-hidden flex flex-col sm:flex-row">
+                {/* Mobile-only Top Banner */}
+                <div className="sm:hidden border-b border-black bg-black text-white py-2.5 px-4 text-center font-unbounded font-black tracking-widest text-base uppercase select-none">
+                  KAUSHIK SAHA
+                </div>
+
+                {/* Left Column: Vertical KAUSHIK SAHA (Desktop & Tablet sm+) */}
+                <div className="hidden sm:flex border-r border-black items-center justify-center p-4 bg-white select-none shrink-0 w-[110px] md:w-[140px]">
                   <div
-                    className="font-unbounded font-black tracking-wider text-black text-2xl sm:text-3xl md:text-4xl uppercase whitespace-nowrap"
+                    className="font-unbounded font-black tracking-wider text-black text-2xl md:text-3xl uppercase whitespace-nowrap"
                     style={{
                       writingMode: 'vertical-rl',
                       transform: 'rotate(180deg)',
@@ -789,20 +885,20 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 </div>
 
                 {/* Right Column: Resume Body */}
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1 min-w-0">
                   {/* Header Row: GRAPHIC DESIGNER + Contact info */}
-                  <div className="border-b border-black p-4 sm:p-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-                    <h1 className="font-unbounded font-black text-lg sm:text-xl md:text-2xl tracking-tight text-black uppercase">
+                  <div className="border-b border-black p-3.5 sm:p-5 md:p-6 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
+                    <h1 className="font-unbounded font-black text-base sm:text-xl md:text-2xl tracking-tight text-black uppercase">
                       GRAPHIC DESIGNER
                     </h1>
-                    <div className="font-sans text-xs sm:text-sm text-neutral-800 text-right sm:text-right font-medium">
+                    <div className="font-mono-tabular text-xs sm:text-sm text-neutral-800 font-medium sm:text-right">
                       <div className="font-bold">{ABOUT_DATA.phone}</div>
-                      <div>{ABOUT_DATA.email}</div>
+                      <div className="break-all">{ABOUT_DATA.email}</div>
                     </div>
                   </div>
 
                   {/* Body Content */}
-                  <div className="p-4 sm:p-6 space-y-6">
+                  <div className="p-3.5 sm:p-6 space-y-5 sm:space-y-6 min-w-0 w-full">
                     {/* Summary Section */}
                     <div>
                       <div className="flex items-center gap-2 mb-2">
@@ -811,9 +907,34 @@ export const AboutView: React.FC<AboutViewProps> = ({
                           Summary
                         </h2>
                       </div>
-                      <p className="font-sans text-xs sm:text-sm leading-relaxed text-neutral-800 text-justify">
+                      <p className="font-sans text-xs sm:text-sm leading-relaxed text-neutral-800 text-left">
                         {ABOUT_DATA.summary}
                       </p>
+                    </div>
+
+                    {/* Key Highlights & Creative Volume Capsules */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-2.5 h-2.5 bg-[#e62b1e]" />
+                        <h2 className="font-unbounded font-bold text-sm sm:text-base text-black uppercase">
+                          Key Production Highlights &amp; Volume
+                        </h2>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {ABOUT_DATA.productionHighlights.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-black bg-neutral-50 flex items-center gap-1 sm:gap-1.5"
+                          >
+                            <span className="font-unbounded font-black text-xs sm:text-sm text-[#e62b1e]">
+                              {item.metric}
+                            </span>
+                            <span className="font-unbounded font-bold text-[10px] sm:text-xs text-black uppercase">
+                              {item.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                     {/* Experience Section */}
@@ -922,7 +1043,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </div>
 
               {/* Modal Actions */}
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
                 <a
                   href={ABOUT_DATA.behanceUrl}
                   target="_blank"
@@ -933,22 +1054,22 @@ export const AboutView: React.FC<AboutViewProps> = ({
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                   <button
                     onClick={handleCopyPhone}
-                    className="px-3 py-1.5 border border-neutral-300 rounded font-mono-tabular font-bold hover:bg-neutral-100 transition-colors cursor-pointer"
+                    className="px-2.5 sm:px-3 py-1.5 border border-neutral-300 rounded font-mono-tabular font-bold hover:bg-neutral-100 transition-colors cursor-pointer text-xs"
                   >
                     {copiedPhone ? 'Copied Phone!' : ABOUT_DATA.phone}
                   </button>
                   <button
                     onClick={handleCopyEmail}
-                    className="px-3 py-1.5 border border-neutral-300 rounded font-mono-tabular font-bold hover:bg-neutral-100 transition-colors cursor-pointer"
+                    className="px-2.5 sm:px-3 py-1.5 border border-neutral-300 rounded font-mono-tabular font-bold hover:bg-neutral-100 transition-colors cursor-pointer text-xs"
                   >
                     {copiedEmail ? 'Copied Email!' : ABOUT_DATA.email}
                   </button>
                   <button
                     onClick={() => setIsResumeModalOpen(false)}
-                    className="px-4 py-1.5 bg-[#e62b1e] text-white rounded font-mono-tabular font-bold uppercase hover:bg-[#c92217] transition-colors cursor-pointer"
+                    className="px-3.5 sm:px-4 py-1.5 bg-[#e62b1e] text-white rounded font-mono-tabular font-bold uppercase hover:bg-[#c92217] transition-colors cursor-pointer text-xs"
                   >
                     Close
                   </button>
