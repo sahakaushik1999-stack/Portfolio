@@ -72,7 +72,7 @@ const uploadVideo = multer({
  * Upload a video file to the server
  */
 app.post('/api/upload-video', (req, res) => {
-  uploadVideo.single('video')(req, res, (err) => {
+  uploadVideo.single('video')(req as any, res as any, (err: any) => {
     if (err) {
       console.error('Video upload error:', err);
       return res.status(400).json({
